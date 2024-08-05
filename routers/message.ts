@@ -1,12 +1,22 @@
 import express from 'express';
 import fs from 'fs';
-
+import {promises as fsp} from 'fs';
 
 const messageRouter = express.Router();
 messageRouter.use(express.json())
 
 messageRouter.get('/', async (req, res) => {
-    res.send('msg get')
+    try {
+        const files = await fsp.readdir('./messages');
+        const messages = await Promise.all(files.slice(-5).map(async file => {
+            const content = await fsp.readFile(`./messages/${file}` , 'utf-8');
+            const date = file.replace('.txt' , '').replace('Z', '').replace('T' , ' ')
+            return {fileName:file , message:content , date:date};
+        }));
+        res.send(messages);
+    } catch (err) {
+        return console.error('Error reading files:', err);
+    }
 })
 messageRouter.post('/', (req, res) => {
     const {message} = req.body;

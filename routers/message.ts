@@ -15,7 +15,8 @@ messageRouter.get('/', async (req, res) => {
         }));
         res.send(messages);
     } catch (err) {
-        return console.error('Error reading files:', err);
+        console.error('Error reading files:', err);
+        return res.status(500).send('There are no messages');
     }
 })
 messageRouter.post('/', (req, res) => {
